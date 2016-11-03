@@ -2,7 +2,6 @@
 using System.Collections;
 using System;
 
-[RequireComponent(typeof(SteamVR_TrackedObject))]
 public class Selection : MonoBehaviour
 {
 	public enum controllerType { mainController, SecondaryController};
@@ -89,6 +88,21 @@ public class Selection : MonoBehaviour
 	bool showGripButton = false;
 
 	int count = 0;
+
+	// to do: delete everythin with controller
+
+	// do raycasting from pos of of mouse
+
+	// change movement to always be on ground (as other prototype)
+
+	// also raycasting to ground / or plane looking at camera / for rotation it should already work
+
+	// add uniform scale handle
+
+	// implement orbit cam from other project
+
+
+
 
     void Awake()
     {
