@@ -19,15 +19,7 @@ public class UiElement : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (focused) {
-			Vector3 newPos = Vector3.SmoothDamp (currentTargetPos, UiCanvasGroup.Instance.headset.transform.position, ref velocity, smoothTime);
-			transform.LookAt (newPos);
-			currentTargetPos = newPos;
-		} else {
-			// evtl noch tweenen
-			transform.LookAt (UiCanvasGroup.Instance.controller1.transform.position);
-			transform.rotation = Quaternion.Euler (0f, transform.rotation.eulerAngles.y, 0f);
-		}
+
     }
 
     public void Focus(Selection controller)

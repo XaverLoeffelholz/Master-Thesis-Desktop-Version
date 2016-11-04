@@ -22,7 +22,6 @@ public class Logger : Singleton<Logger> {
     private float countTimeFrom;
 
     public StageFreeMovement stageMovement;
-    public StageController stageController;
 	public SeatedOrStandingManager seatedorStandingmanager;
     public Selection selection;
 	public int sessionNumber;
@@ -76,10 +75,7 @@ public class Logger : Singleton<Logger> {
         {
             currentType = generalType.triggerInteraction;
         }
-
-		string text = UserID + "," + currentType + "," + (Time.time - countTimeFrom) + "," + logtype + "," + seatedorStandingmanager.currentMode + "," + stageMovement.currentStageMovement + "," + stageController.currentRotationScalingTechnique + "," + sessionNumber + "\n";
-        
-		File.AppendAllText(filePathLogger, text);
+	
     }
 
 

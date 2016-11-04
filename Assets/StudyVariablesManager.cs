@@ -13,8 +13,6 @@ public class StudyVariablesManager : MonoBehaviour {
 
 	public Selection contoller1_sel;
 	public Selection contoller2_sel;
-	public StageController contoller1_stage;
-	public StageController contoller2_stage;
 	public StageFreeMovement stage;
 	public Logger logger;
 
@@ -41,17 +39,6 @@ public class StudyVariablesManager : MonoBehaviour {
 		}
 
 		stage.UpdateStageMovement ();
-
-		if (variableNav2.value == 0) {
-			contoller1_stage.currentRotationScalingTechnique = StageController.RotationScalingTechnique.touchpads;
-			contoller2_stage.currentRotationScalingTechnique = StageController.RotationScalingTechnique.touchpads;
-		} else {
-			contoller1_stage.currentRotationScalingTechnique = StageController.RotationScalingTechnique.gesture;
-			contoller2_stage.currentRotationScalingTechnique = StageController.RotationScalingTechnique.gesture;
-		}
-
-		contoller1_stage.UpdateRotationScalingTechnique ();
-		contoller2_stage.UpdateRotationScalingTechnique ();
 
 		if (variableSelection3.value == 0) {
 			seatMode.SetSeatedMode ();

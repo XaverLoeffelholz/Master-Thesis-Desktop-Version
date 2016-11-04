@@ -34,6 +34,8 @@ public class UiCanvasGroup : Singleton<UiCanvasGroup>{
 
 	public CanvasGroup MenuBG;
 
+	public Transform uiPos;
+
     // Use this for initialization
     void Start () {
         visible = false;
@@ -44,10 +46,10 @@ public class UiCanvasGroup : Singleton<UiCanvasGroup>{
 	void Update () {
         if (visible)
         {
-          //  transform.LookAt(headset);
+			transform.LookAt(Camera.main.transform);
 			//transform.position = controller2.transform.position + controller2.LaserPointer.transform.forward * 0.1f;
-			transform.position = controller2.transform.position;
-			transform.localRotation = controller2.transform.localRotation;
+			transform.position = uiPos.position;
+			//transform.localRotation = controller2.transform.localRotation;
         }
 
     }

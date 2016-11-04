@@ -12,21 +12,10 @@ public class handles : MonoBehaviour {
 
     public Transform RotationHandles;
 
-    public GameObject RotateUp0;
-    public GameObject RotateUp1;
-    public GameObject RotateUp2;
-    public GameObject RotateUp3;
-
-    public GameObject RotateDown0;
-    public GameObject RotateDown1;
-    public GameObject RotateDown2;
-    public GameObject RotateDown3;
-
-    public GameObject RotateSide0;
-    public GameObject RotateSide1;
-    public GameObject RotateSide2;
-    public GameObject RotateSide3;
-
+    public GameObject RotateX;
+    public GameObject RotateY;
+    public GameObject RotateZ;
+   
     public GameObject TopHandles;
     public GameObject BottomHandles;
 
@@ -37,6 +26,9 @@ public class handles : MonoBehaviour {
 	public GameObject NonUniformScaleBottom;
 	public GameObject NonUniformScaleLeft;
 	public GameObject NonUniformScaleRight;
+
+	public GameObject YMovement;
+	public GameObject UniformScale;
 
 	private ModelingObject connectedModelingObject;
 
@@ -94,6 +86,15 @@ public class handles : MonoBehaviour {
 				handle.gameObject.SetActive(false);
 			}
 		}
+
+		if (certainHandle == null || YMovement.transform != certainHandle.transform) {
+			YMovement.SetActive (false);
+		}
+
+		if (certainHandle == null || UniformScale.transform != certainHandle.transform) {
+			UniformScale.SetActive (false);
+		}
+
 	}
 
 	public void ShowNonUniformScalingHandles() {
@@ -117,6 +118,9 @@ public class handles : MonoBehaviour {
 			NonUniformScaleBottom.SetActive(true);
 			NonUniformScaleLeft.SetActive(true);
 			NonUniformScaleRight.SetActive(true);
+
+			YMovement.SetActive (true);
+			UniformScale.SetActive (true);
 
 			connectedModelingObject.ShowBoundingBox (false);
 		}

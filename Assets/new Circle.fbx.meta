@@ -1,29 +1,27 @@
 fileFormatVersion: 2
-guid: 8aa0e3826262c984f90b816140a76e17
-timeCreated: 1470568407
+guid: 221b73c4ff0e24e7b88d457ccc5dddf6
+timeCreated: 1477662344
 licenseType: Free
 ModelImporter:
   serializedVersion: 19
   fileIDToRecycleName:
     100000: //RootNode
-    100002: pCone1
-    100004: pCone2
-    100006: pTorus2
-    100008: pTorus3
-    100010: transform1
-    100012: transform2
-    100014: transform3
+    100002: pPipe1
+    100004: pPyramid2
+    100006: pPyramid3
     400000: //RootNode
-    400002: pCone1
-    400004: pCone2
-    400006: pTorus2
-    400008: pTorus3
-    400010: transform1
-    400012: transform2
-    400014: transform3
-    2300000: pTorus3
-    3300000: pTorus3
-    4300000: pTorus3
+    400002: pPipe1
+    400004: pPyramid2
+    400006: pPyramid3
+    2300000: pPipe1
+    2300002: pPyramid2
+    2300004: pPyramid3
+    3300000: pPipe1
+    3300002: pPyramid2
+    3300004: pPyramid3
+    4300000: pPipe1
+    4300002: pPyramid2
+    4300004: pPyramid3
     9500000: //RootNode
   materials:
     importMaterials: 1

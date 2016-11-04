@@ -22,8 +22,6 @@ public class Trash : Singleton<Trash> {
         {
             TrashAreaActive(true);
             other.transform.parent.GetComponent<ModelingObject>().inTrashArea = true;
-            controller1.TriggerIfPressed(1500);
-            controller2.TriggerIfPressed(1500);
         }
     }
 
@@ -33,8 +31,6 @@ public class Trash : Singleton<Trash> {
         {
             TrashAreaActive(false);
             other.transform.parent.GetComponent<ModelingObject>().inTrashArea = false;
-            controller1.TriggerIfPressed(1500);
-            controller2.TriggerIfPressed(1500);
         }
     }
 
