@@ -304,8 +304,7 @@ public class handle : MonoBehaviour {
 		centerOfScaling = connectedModelingObject.transform.InverseTransformPoint (connectedModelingObject.GetBoundingBoxBottomCenter ());
 		touchPointForScaling = connectedModelingObject.transform.InverseTransformPoint (connectedModelingObject.GetBoundingBoxTopCenter ());
 
-		Debug.Log ("new scaling: " + newScaling);
-
+	
 		if (newScaling)
 		{
 			prevScalingAmount = input;
@@ -664,8 +663,6 @@ public class handle : MonoBehaviour {
 				handles.objectFocused = true;
 
 				focused = true;
-
-				Debug.Log ("Focus handle");
 			}
 		}
 

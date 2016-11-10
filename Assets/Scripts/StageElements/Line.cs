@@ -45,4 +45,9 @@ public class Line : MonoBehaviour {
         p1.transform.localPosition = pos1;
         p2.transform.localPosition = pos2;
     }
+
+	public void ChangeColor(Color color){
+	//	line.GetComponent<Renderer> ().material.shader = Shader.Find("Albedo");
+		line.GetComponent<Renderer> ().material.color = color;
+	}
 }

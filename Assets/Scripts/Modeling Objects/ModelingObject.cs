@@ -105,27 +105,34 @@ public class ModelingObject : MonoBehaviour
 	GameObject yAxis;
 	GameObject zAxis;
 
+	public Lines connectingLinesHandles;
+
+	private Selection selection;
+
     // Use this for initialization
     void Start()
     {
         handles.gameObject.transform.GetChild(0).gameObject.SetActive(false);
         DistanceVisualisation = ObjectsManager.Instance.DistanceVisualisation;
 		player = Camera.main.transform;
-    }
+		selection = GameObject.Find ("SelectionManager").GetComponent<Selection> ();
+	}
 
     // Update is called once per frame
     void FixedUpdate()
     {
-		if (Input.GetMouseButtonDown (1)) {
+		if (Input.GetMouseButtonDown (1)  || (selection.currentFocus == null && Input.GetMouseButton(0))) {
 			handles.HideRotationHandlesExcept (null);
 			handles.HideScalingHandlesExcept (null);
+			connectingLinesHandles.ClearLines ();
 		}
 
-		if (Input.GetMouseButtonUp (1) && selected) {
+		if ((Input.GetMouseButtonUp (1) && selected) ||  (Input.GetMouseButtonUp (0) && selected)) {
 			PositionHandles (true);
 			RotateHandles ();
 			handles.ShowNonUniformScalingHandles ();
 			handles.ShowRotationHandles ();
+			DrawConnectingLines ();
 		}
 
         if (!moving && transform.parent.CompareTag("Library"))
@@ -197,6 +204,9 @@ public class ModelingObject : MonoBehaviour
 
 				KeepAboveZero (prevPosition);
 
+				//transform.localPosition = transform.localPosition + RasterManager.Instance.Raster (transform.InverseTransformVector(newPositionWorld - prevPosition));
+				//KeepAboveZero (prevPosition);
+
 				transform.localPosition = RasterManager.Instance.Raster (transform.localPosition);
 
 				// here check for possible snappings
@@ -235,7 +245,7 @@ public class ModelingObject : MonoBehaviour
 			}
 
 
-			if (!outOfLibrary && !inTrashArea) {
+			if (!outOfLibrary && !inTrashArea && RasterManager.Instance.rasterLevel >= 0.05f) {
 				
 				// maybe check local positon
 				int countX = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).x, transform.InverseTransformPoint(PositionOnMovementStart).x);
@@ -562,6 +572,17 @@ public class ModelingObject : MonoBehaviour
         meshCollider.sharedMesh = mesh;
     }
 
+	public void UpdateVisibleHandles(){
+		handles.HideRotationHandlesExcept (null);
+		handles.HideScalingHandlesExcept (null);
+
+		PositionHandles (true);
+		RotateHandles ();
+		handles.ShowNonUniformScalingHandles ();
+		handles.ShowRotationHandles ();
+		DrawConnectingLines ();
+	}
+
 	public void PositionHandles(bool showRotationHandles)
     {
 		CalculateBoundingBox ();
@@ -621,25 +642,62 @@ public class ModelingObject : MonoBehaviour
 			handles.RotateY.transform.rotation = Quaternion.LookRotation (new Vector3(0f,1f,0f), handles.RotateY.transform.position - bbCenter);
 			handles.RotateZ.transform.rotation = Quaternion.LookRotation (new Vector3(0f,0f,1f), handles.RotateZ.transform.position - bbCenter);
 
-			handles.RotateX.SetActive (true);
+			if (!ProModeMananager.Instance.beginnersMode) {
+				handles.RotateX.SetActive (true);
+				handles.RotateZ.SetActive (true);
+			}
 			handles.RotateY.SetActive (true);
-			handles.RotateZ.SetActive (true);
 		}
 	
-		handles.NonUniformScaleTop.transform.position = GetBoundingBoxTopCenter ();
-		handles.NonUniformScaleBottom.transform.position = GetBoundingBoxBottomCenter ();
+		handles.NonUniformScaleTop.transform.position = GetBoundingBoxTopCenter () + 0.03f * (GetBoundingBoxTopCenter () - GetBoundingBoxBottomCenter ()).normalized;
+		handles.NonUniformScaleBottom.transform.position = GetBoundingBoxBottomCenter () + 0.03f * (GetBoundingBoxBottomCenter () - GetBoundingBoxTopCenter ()).normalized;
 
-		handles.NonUniformScaleFront.transform.position = GetBoundingBoxFrontCenter ();
-		handles.NonUniformScaleBack.transform.position = GetBoundingBoxBackCenter ();
+		handles.NonUniformScaleFront.transform.position = GetBoundingBoxFrontCenter () + 0.03f * (GetBoundingBoxFrontCenter () - GetBoundingBoxBackCenter ()).normalized;
+		handles.NonUniformScaleBack.transform.position = GetBoundingBoxBackCenter () + 0.03f * (GetBoundingBoxBackCenter () - GetBoundingBoxFrontCenter ()).normalized;
 
-		handles.NonUniformScaleLeft.transform.position = GetBoundingBoxLeftCenter ();
-		handles.NonUniformScaleRight.transform.position = GetBoundingBoxRightCenter ();
+		handles.NonUniformScaleLeft.transform.position = GetBoundingBoxLeftCenter () + 0.03f * (GetBoundingBoxLeftCenter () - GetBoundingBoxRightCenter ()).normalized;
+		handles.NonUniformScaleRight.transform.position = GetBoundingBoxRightCenter () + 0.03f * (GetBoundingBoxRightCenter () - GetBoundingBoxLeftCenter ()).normalized;
 
-		handles.YMovement.transform.position = GetBoundingBoxTopCenter () + new Vector3(0f,0.3f,0f);
-		handles.UniformScale.transform.position = GetBoundingBoxTopCenter () + new Vector3(0f,0.2f,0f);
+		// verschiebung muss relativ sein
+		handles.YMovement.transform.position = GetBoundingBoxTopCenter () + 0.03f * (GetBoundingBoxTopCenter () - GetBoundingBoxBottomCenter ()).normalized;
+		handles.UniformScale.transform.position = GetBoundingBoxTopCenter () + 0.03f * (GetBoundingBoxTopCenter () - GetBoundingBoxBottomCenter ()).normalized;
 
-
+		DrawConnectingLines ();
     }
+
+	public void DrawConnectingLines(){
+
+		if (!ProModeMananager.Instance.beginnersMode) {		
+			//connectingLinesHandles.ClearLines ();
+				
+			// draw new lines
+			connectingLinesHandles.EnhancedDrawLinesWorldCoordinate (new Vector3[] {
+				handles.NonUniformScaleFront.transform.position,
+				handles.NonUniformScaleBack.transform.position
+			}, 0, handles.NonUniformScaleFront.GetComponent<handle> ().normalColor);
+
+			connectingLinesHandles.EnhancedDrawLinesWorldCoordinate (new Vector3[] {
+				handles.NonUniformScaleLeft.transform.position,
+				handles.NonUniformScaleRight.transform.position
+			}, 2, handles.NonUniformScaleLeft.GetComponent<handle> ().normalColor);
+
+			connectingLinesHandles.EnhancedDrawLinesWorldCoordinate (new Vector3[] {
+				handles.NonUniformScaleTop.transform.position,
+				handles.NonUniformScaleBottom.transform.position
+			}, 4, handles.YMovement.GetComponent<handle> ().normalColor);
+
+			connectingLinesHandles.EnhancedDrawLinesWorldCoordinate (new Vector3[] {
+				handles.YMovement.transform.GetChild (0).position,
+				handles.NonUniformScaleTop.transform.position
+			}, 6, Color.white);
+		} else {
+				connectingLinesHandles.EnhancedDrawLinesWorldCoordinate (new Vector3[] {
+				handles.YMovement.transform.GetChild (0).position,
+				handles.NonUniformScaleTop.transform.position
+			}, 0, Color.white);
+		}
+
+	}
 
     public void RotateHandles()
     {
@@ -803,6 +861,8 @@ public class ModelingObject : MonoBehaviour
 
 			//ShowOutline(true);
 			ShowBoundingBox (true);
+
+		//	Camera.main.gameObject.GetComponent<maxCamera> ().target = transform;
 		}     
 
 		selected = true;
@@ -824,6 +884,8 @@ public class ModelingObject : MonoBehaviour
 			objectSelector.DeSelect (controller);
 
 			controller.DeAssignCurrentSelection(transform.gameObject);
+
+		//	Camera.main.gameObject.GetComponent<maxCamera> ().target = GameObject.Find("StageScaler").transform;
 		}
 
 		selected = false;

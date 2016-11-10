@@ -33,11 +33,11 @@ Material:
       data:
         first:
           name: _Solid
-        second: 1
+        second: 0
       data:
         first:
           name: _GradientStrengthModifier
-        second: 2.44
+        second: 0.3
     m_Colors:
       data:
         first:

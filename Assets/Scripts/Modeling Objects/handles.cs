@@ -27,6 +27,7 @@ public class handles : MonoBehaviour {
 	public GameObject NonUniformScaleLeft;
 	public GameObject NonUniformScaleRight;
 
+	public GameObject MovementHandleGroup;
 	public GameObject YMovement;
 	public GameObject UniformScale;
 
@@ -38,6 +39,8 @@ public class handles : MonoBehaviour {
 
 	public GameObject linesGO;
 	public GameObject rotationSliceGO;
+
+	public GameObject connectingLines;
 
     // Use this for initialization
     void Start () {
@@ -68,6 +71,7 @@ public class handles : MonoBehaviour {
 		connectedModelingObject.PositionHandles(true);
 		connectedModelingObject.RotateHandles();
 		connectedModelingObject.ShowBoundingBox (false);
+		connectingLines.SetActive (true);
     }
 
 	public void HideRotationHandlesExcept(handle certainHandle){
@@ -80,6 +84,8 @@ public class handles : MonoBehaviour {
 	}
 
 	public void HideScalingHandlesExcept(handle certainHandle){
+		connectedModelingObject.connectingLinesHandles.ClearLines ();
+
 		foreach (Transform handle in NonUniformScalingHandles.transform)
 		{
 			if (certainHandle == null || handle != certainHandle.transform) {
@@ -95,6 +101,8 @@ public class handles : MonoBehaviour {
 			UniformScale.SetActive (false);
 		}
 
+	
+
 	}
 
 	public void ShowNonUniformScalingHandles() {
@@ -109,21 +117,40 @@ public class handles : MonoBehaviour {
 		HeightBottom.SetActive(false);
 
 		if (connectedModelingObject.group == null) {
+
 			ShowRotationHandles ();
 			Handlegroup.gameObject.SetActive (true);
-			NonUniformScalingHandles.SetActive (true);
-			NonUniformScaleFront.SetActive(true);
-			NonUniformScaleBack.SetActive(true);
-			NonUniformScaleTop.SetActive(true);
-			NonUniformScaleBottom.SetActive(true);
-			NonUniformScaleLeft.SetActive(true);
-			NonUniformScaleRight.SetActive(true);
 
 			YMovement.SetActive (true);
+			MovementHandleGroup.SetActive (true);
 			UniformScale.SetActive (true);
 
 			connectedModelingObject.ShowBoundingBox (false);
+			connectedModelingObject.DrawConnectingLines ();
+			connectingLines.SetActive (true);
+
+
+			if (!ProModeMananager.Instance.beginnersMode) {
+				NonUniformScalingHandles.SetActive (true);
+				NonUniformScaleFront.SetActive (true);
+				NonUniformScaleBack.SetActive (true);
+				NonUniformScaleTop.SetActive (true);
+				NonUniformScaleBottom.SetActive (true);
+				NonUniformScaleLeft.SetActive (true);
+				NonUniformScaleRight.SetActive (true);
+
+			} else {
+				NonUniformScalingHandles.SetActive (false);
+				NonUniformScaleFront.SetActive (false);
+				NonUniformScaleBack.SetActive (false);
+				NonUniformScaleTop.SetActive (false);
+				NonUniformScaleBottom.SetActive (false);
+				NonUniformScaleLeft.SetActive (false);
+				NonUniformScaleRight.SetActive (false);
+			}
 		}
+
+
 	}
 
     public void ShowFrustumHandles() {

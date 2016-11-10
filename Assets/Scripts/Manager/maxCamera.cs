@@ -7,7 +7,9 @@ using System.Collections;
 
 [AddComponentMenu("Camera-Control/3dsMax Camera Style")]
 public class maxCamera : MonoBehaviour {
-	
+
+	public Selection selection;
+
 	public Transform target;
 	public Vector3 targetOffset;
 	public float distance = 5.0f;
@@ -57,18 +59,30 @@ public class maxCamera : MonoBehaviour {
 		yDeg = Vector3.Angle(Vector3.up, transform.up );
 	}
 
+	public void MoveCameraCenterToObject(){
+		LeanTween.move (target.gameObject, selection.currentSelection.GetComponent<ModelingObject>().GetBoundingBoxCenter(), 0.8f).setEase (LeanTweenType.easeInOutExpo);
+
+		// maybe also implement move closer
+	}
+
 	/*
      * Camera logic on LateUpdate to only update after all character movement logic has been handled. 
      */
 	void LateUpdate()
 	{
+		if (Input.GetKeyDown(KeyCode.Space)) {
+			if (selection.currentSelection != null) {
+				MoveCameraCenterToObject ();
+			}
+		}
+
 		// If Control and Alt and Middle button? ZOOM!
 		if (Input.GetMouseButton(2) && Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl))
 		{
 			desiredDistance -= Input.GetAxis("Mouse Y") * Time.deltaTime * zoomRate*0.125f * Mathf.Abs(desiredDistance);
 		}
 		// If middle mouse and left alt are selected? ORBIT
-		else if (Input.GetMouseButton(1))
+		else if (Input.GetMouseButton(1) || (selection.currentFocus == null && Input.GetMouseButton(0)))
 		{
 			xDeg += Input.GetAxis("Mouse X") * xSpeed * 0.02f;
 			yDeg -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
