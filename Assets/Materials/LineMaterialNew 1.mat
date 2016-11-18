@@ -6,9 +6,9 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: lambert1
+  m_Name: LineMaterialNew 1
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: _ALPHABLEND_ON _COLOR_ON _EMISSION _TEX_ON
+  m_ShaderKeywords: _ALPHABLEND_ON _EMISSION
   m_LightmapFlags: 1
   m_CustomRenderQueue: 3000
   stringTagMap:
@@ -79,27 +79,6 @@ Material:
           m_Texture: {fileID: 0}
           m_Scale: {x: 1, y: 1}
           m_Offset: {x: 0, y: 0}
-      data:
-        first:
-          name: _ToonShade
-        second:
-          m_Texture: {fileID: 0}
-          m_Scale: {x: 1, y: 1}
-          m_Offset: {x: 0, y: 0}
-      data:
-        first:
-          name: _SpecGlossMap
-        second:
-          m_Texture: {fileID: 0}
-          m_Scale: {x: 1, y: 1}
-          m_Offset: {x: 0, y: 0}
-      data:
-        first:
-          name: _MKGlowTex
-        second:
-          m_Texture: {fileID: 0}
-          m_Scale: {x: 1, y: 1}
-          m_Offset: {x: 0, y: 0}
     m_Floats:
       data:
         first:
@@ -115,24 +94,16 @@ Material:
         second: 0.5
       data:
         first:
-          name: _Shininess
-        second: 0.078125
-      data:
-        first:
-          name: PixelSnap
-        second: 0
-      data:
-        first:
           name: _ZWrite
         second: 0
       data:
         first:
           name: _Glossiness
-        second: 0.519
+        second: 0
       data:
         first:
           name: _Metallic
-        second: 0.42
+        second: 0
       data:
         first:
           name: _BumpScale
@@ -157,68 +128,12 @@ Material:
         first:
           name: _Mode
         second: 2
-      data:
-        first:
-          name: _InvFade
-        second: 1
-      data:
-        first:
-          name: _DetailTex
-        second: 1
-      data:
-        first:
-          name: _TintColor
-        second: 1
-      data:
-        first:
-          name: _VertexColor
-        second: 0
-      data:
-        first:
-          name: _Brightness
-        second: 1
-      data:
-        first:
-          name: _Outline
-        second: 2.94
-      data:
-        first:
-          name: _MKGlowPower
-        second: 2.5
-      data:
-        first:
-          name: _MKGlowTexStrength
-        second: 1
-      data:
-        first:
-          name: _MKGlowOffSet
-        second: 0.039
     m_Colors:
       data:
         first:
           name: _EmissionColor
-        second: {r: 0.53676474, g: 0.54465836, b: 0.54465836, a: 1}
+        second: {r: 0.465, g: 0.465, b: 0.465, a: 1}
       data:
         first:
           name: _Color
-        second: {r: 0.560932, g: 0.7560814, b: 0.9191176, a: 0.466}
-      data:
-        first:
-          name: _SpecColor
-        second: {r: 1, g: 1, b: 1, a: 1}
-      data:
-        first:
-          name: _TintColor
-        second: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-      data:
-        first:
-          name: _OutlineColor
-        second: {r: 0.19852942, g: 0.19852942, b: 0.19852942, a: 1}
-      data:
-        first:
-          name: _MKGlowColor
-        second: {r: 1, g: 1, b: 1, a: 1}
-      data:
-        first:
-          name: _MKGlowTexColor
-        second: {r: 1, g: 1, b: 1, a: 1}
+        second: {r: 1, g: 1, b: 1, a: 0.222}

@@ -9,7 +9,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 458654}
   m_Layer: 0
-  m_Name: RotationSlice
+  m_Name: RotationSlice Big
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -42,7 +42,7 @@ GameObject:
   - 64: {fileID: 6413440}
   - 23: {fileID: 2330376}
   m_Layer: 0
-  m_Name: 1 deg
+  m_Name: 22 deg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -60,7 +60,7 @@ GameObject:
   - 64: {fileID: 6418018}
   - 23: {fileID: 2343162}
   m_Layer: 0
-  m_Name: 1 deg (1)
+  m_Name: 22 deg (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -127,7 +127,7 @@ MeshRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_Materials:
-  - {fileID: 2100000, guid: 051004e5c44d5406db6fd075f3f49918, type: 2}
+  - {fileID: 2100000, guid: 9de0c7ab8ab86481b9712fcfee2ed690, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1
@@ -153,7 +153,7 @@ MeshRenderer:
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_Materials:
-  - {fileID: 2100000, guid: 051004e5c44d5406db6fd075f3f49918, type: 2}
+  - {fileID: 2100000, guid: 9de0c7ab8ab86481b9712fcfee2ed690, type: 2}
   m_SubsetIndices: 
   m_StaticBatchRoot: {fileID: 0}
   m_UseLightProbes: 1

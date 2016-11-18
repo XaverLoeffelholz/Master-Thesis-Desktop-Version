@@ -31,6 +31,8 @@ public class handles : MonoBehaviour {
 	public GameObject YMovement;
 	public GameObject UniformScale;
 
+	public GameObject RotateAndTranslate;
+
 	private ModelingObject connectedModelingObject;
 
     public bool objectFocused;
@@ -101,7 +103,9 @@ public class handles : MonoBehaviour {
 			UniformScale.SetActive (false);
 		}
 
-	
+		if (certainHandle == null || RotateAndTranslate.transform != certainHandle.transform) {
+			RotateAndTranslate.SetActive (false);
+		}
 
 	}
 
@@ -129,6 +133,7 @@ public class handles : MonoBehaviour {
 			connectedModelingObject.DrawConnectingLines ();
 			connectingLines.SetActive (true);
 
+			//RotateAndTranslate.SetActive (true);
 
 			if (!ProModeMananager.Instance.beginnersMode) {
 				NonUniformScalingHandles.SetActive (true);

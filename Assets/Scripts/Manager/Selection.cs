@@ -378,7 +378,7 @@ public class Selection : MonoBehaviour
 				grabbedIconOffset = Vector3.zero;
 
 				if (movingHandle){
-					currentFocus.GetComponent<handle> ().FinishUsingHandle ();
+					currentFocus.GetComponent<handle> ().FinishUsingHandle (this);
 					movingHandle = false;
 				}
 

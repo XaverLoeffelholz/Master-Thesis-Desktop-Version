@@ -7,6 +7,7 @@ public class RasterManager : Singleton<RasterManager> {
 
     public float rasterLevel;
     public float rasterLevelAngles;
+	public float rasterLevelAnglesSmooth;
 	public float smoothTime = 0.3F;
 
 	public float maxValue;
@@ -58,6 +59,13 @@ public class RasterManager : Singleton<RasterManager> {
         float rasteredFloat = count * rasterLevelAngles;
         return rasteredFloat;
     }
+
+	public float RasterAngleSmooth(float input)
+	{
+		float count = Mathf.Round(input / rasterLevelAnglesSmooth);
+		float rasteredFloat = count * rasterLevelAnglesSmooth;
+		return rasteredFloat;
+	}
 
 	public void UpdateRaster(){
 		float value = rasterSlider.value;

@@ -145,6 +145,8 @@ public class ObjectCreator : Singleton<ObjectCreator> {
 
             newModelingObject.SetVertexBundlePositions(topFaceCoordinates, bottomFaceCoordinates, original.topFace.centerPosition, original.bottomFace.centerPosition);
 			newObject.transform.localPosition = offSet;
+
+			newModelingObject.coordinateSystem.transform.localRotation = original.coordinateSystem.transform.localRotation;
         }
 
         // newModelingObject.CorrectOffset();

@@ -45,17 +45,17 @@ public class ModelingObject : MonoBehaviour
     public bool moving = false;
     bool focused = false;
 
-    private Vector3 PositionOnMovementStart;
+    public Vector3 PositionOnMovementStart;
 
     public GameObject linesPrefab;
     public GameObject DistanceVisualPrefab;
     public GameObject CenterVisualPrefab;
     public GameObject GroundVisualPrefab;
-    private GameObject GroundVisualOnStartMoving;
-	private GameObject GroundVisualOnStartMovingTop;
-	private GameObject GroundVisualOnStartMovingBottom;
-    private Transform DistanceVisualisation;
-	private Vector3[] initialCoordinatesBoundingBox;
+    public GameObject GroundVisualOnStartMoving;
+	public GameObject GroundVisualOnStartMovingTop;
+	public GameObject GroundVisualOnStartMovingBottom;
+    public Transform DistanceVisualisation;
+	public Vector3[] initialCoordinatesBoundingBox;
 
     private Vector3 lastPositionX;
     private Vector3 lastPositionY;
@@ -91,6 +91,7 @@ public class ModelingObject : MonoBehaviour
 	private Vector3 initialDistanceCollisionGOModelingObject;
 
     public BoundingBox boundingBox;
+	public BoundingBox boundingBoxWorld;
 
 	private bool trashed = false;
 	public Transform rotationObject;
@@ -108,6 +109,9 @@ public class ModelingObject : MonoBehaviour
 	public Lines connectingLinesHandles;
 
 	private Selection selection;
+
+	// vector used for bb calculation
+	private Vector3 current;
 
     // Use this for initialization
     void Start()
@@ -245,129 +249,133 @@ public class ModelingObject : MonoBehaviour
 			}
 
 
-			if (!outOfLibrary && !inTrashArea && RasterManager.Instance.rasterLevel >= 0.05f) {
-				
-				// maybe check local positon
-				int countX = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).x, transform.InverseTransformPoint(PositionOnMovementStart).x);
-
-				for (int i = 0; i <= Mathf.Abs(countX); i++)
-				{
-					if (i == 0)
-					{
-						// Display center of object before moving
-						GameObject CenterVisual = Instantiate(CenterVisualPrefab);
-						CenterVisual.transform.SetParent(DistanceVisualisation);
-						CenterVisual.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
-
-						// change size depending on scale of stage
-						CenterVisual.transform.localScale = new Vector3(1f, 1f, 1f);
-						CenterVisual.transform.position = PositionOnMovementStart;
-
-						// Display center of object after moving
-						GameObject CenterVisual2 = Instantiate(CenterVisualPrefab);
-						CenterVisual2.transform.SetParent(DistanceVisualisation);
-						CenterVisual2.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
-						CenterVisual2.transform.localScale = new Vector3(1f, 1f, 1f);
-
-						// not very efficient
-						CenterVisual2.transform.position = 0.25f * boundingBox.coordinates[4] + 0.25f * boundingBox.coordinates[5] + 0.25f * boundingBox.coordinates[6] + 0.25f * boundingBox.coordinates[7];
-
-						// prev position
-						GameObject lines = Instantiate(linesPrefab);
-						lines.transform.SetParent(DistanceVisualisation);
-						lines.GetComponent<Lines>().DrawLinesWorldCoordinate(new Vector3[] { boundingBox.coordinates[4], boundingBox.coordinates[5], boundingBox.coordinates[6], boundingBox.coordinates[7]}, 0);
-
-						// new position
-						GameObject lines2 = Instantiate(linesPrefab);
-						lines2.transform.SetParent(DistanceVisualisation);
-						lines2.GetComponent<Lines>().DrawLinesWorldCoordinate(initialCoordinatesBoundingBox, 0);
-
-					}
-
-					GameObject DistanceVisualX = Instantiate(DistanceVisualPrefab);
-					DistanceVisualX.transform.SetParent(DistanceVisualisation);
-					DistanceVisualX.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
-					DistanceVisualX.transform.localScale = new Vector3(1f, 1f, 1f);
-					DistanceVisualX.transform.position = PositionOnMovementStart;
-
-					if (bottomFace.center.coordinates.x > transform.InverseTransformPoint(PositionOnMovementStart).x)
-					{
-						DistanceVisualX.transform.localPosition += new Vector3(i * RasterManager.Instance.rasterLevel, 0f, 0f);
-					}
-					else
-					{
-						DistanceVisualX.transform.localPosition += new Vector3(i * RasterManager.Instance.rasterLevel * (-1.0f), 0f, 0f);
-					}
-
-					lastPositionX = DistanceVisualX.transform.position;
-					lastPositionZ = DistanceVisualX.transform.position;
-				}
-
-				// show amount of movement on z
-				if (bottomFace.center.coordinates.z != transform.InverseTransformPoint(PositionOnMovementStart).z)
-				{
-					// use raster manager
-					int countZ = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).z, transform.InverseTransformPoint(PositionOnMovementStart).z);
-
-					for (int i = 0; i <= Mathf.Abs(countZ); i++)
-					{
-						GameObject DistanceVisualZ = Instantiate(DistanceVisualPrefab);
-						DistanceVisualZ.transform.SetParent(DistanceVisualisation);
-						DistanceVisualZ.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
-						DistanceVisualZ.transform.localScale = new Vector3(1f, 1f, 1f);
-						DistanceVisualZ.transform.GetChild(0).localEulerAngles = new Vector3(0f, 90f, 0f);
-						DistanceVisualZ.transform.position = lastPositionX;
-
-						if (bottomFace.center.coordinates.z > transform.InverseTransformPoint(PositionOnMovementStart).z)
-						{
-							DistanceVisualZ.transform.localPosition += new Vector3(0f, 0f, i * RasterManager.Instance.rasterLevel);
-						}
-						else
-						{
-							DistanceVisualZ.transform.localPosition += new Vector3(0f, 0f, i * RasterManager.Instance.rasterLevel * (-1.0f));
-						}
-
-						lastPositionZ = DistanceVisualZ.transform.position;
-					}
-
-				}
-
-				// show amount of movement on y
-				if (bottomFace.center.coordinates.y != transform.InverseTransformPoint(PositionOnMovementStart).y)
-				{
-					// use raster manager
-					int countY = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).y, transform.InverseTransformPoint(PositionOnMovementStart).y);
-
-					for (int i = 0; i <= Mathf.Abs(countY); i++)
-					{
-						GameObject DistanceVisualY = Instantiate(DistanceVisualPrefab);
-						DistanceVisualY.transform.SetParent(DistanceVisualisation);
-						DistanceVisualY.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
-						DistanceVisualY.transform.localScale = new Vector3(1f, 1f, 1f);
-						DistanceVisualY.transform.position = lastPositionZ;
-
-						if (bottomFace.center.coordinates.y > transform.InverseTransformPoint(PositionOnMovementStart).y)
-						{
-							DistanceVisualY.transform.localPosition += new Vector3(0f, i * RasterManager.Instance.rasterLevel, 0f);
-						}
-						else
-						{
-							DistanceVisualY.transform.localPosition += new Vector3(0f, i * RasterManager.Instance.rasterLevel * (-1.0f), 0f);
-						}
-
-						lastPositionY = DistanceVisualY.transform.position;
-					}
-
-				}
-
-
+			if (!outOfLibrary && !inTrashArea) {
+				VisualizeMovement ();
 			}
-
-
 		}		
 
     }
 
+
+	public void VisualizeMovement(){
+
+		if (RasterManager.Instance.rasterLevel >= 0.05f && !ProModeMananager.Instance.beginnersMode) {
+			// maybe check local positon
+			int countX = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).x, transform.InverseTransformPoint(PositionOnMovementStart).x);
+
+			for (int i = 0; i <= Mathf.Abs(countX); i++)
+			{
+				if (i == 0)
+				{
+					// Display center of object before moving
+					GameObject CenterVisual = Instantiate(CenterVisualPrefab);
+					CenterVisual.transform.SetParent(DistanceVisualisation);
+					CenterVisual.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+
+					// change size depending on scale of stage
+					CenterVisual.transform.localScale = new Vector3(1f, 1f, 1f);
+					CenterVisual.transform.position = PositionOnMovementStart;
+
+					// Display center of object after moving
+					GameObject CenterVisual2 = Instantiate(CenterVisualPrefab);
+					CenterVisual2.transform.SetParent(DistanceVisualisation);
+					CenterVisual2.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+					CenterVisual2.transform.localScale = new Vector3(1f, 1f, 1f);
+
+					// not very efficient
+					CenterVisual2.transform.position = 0.25f * boundingBox.coordinates[4] + 0.25f * boundingBox.coordinates[5] + 0.25f * boundingBox.coordinates[6] + 0.25f * boundingBox.coordinates[7];
+
+					// prev position
+					GameObject lines = Instantiate(linesPrefab);
+					lines.transform.SetParent(DistanceVisualisation);
+					lines.GetComponent<Lines>().DrawLinesWorldCoordinate(new Vector3[] { boundingBoxWorld.coordinates[4], boundingBoxWorld.coordinates[5], boundingBoxWorld.coordinates[6], boundingBoxWorld.coordinates[7]}, 0);
+
+					// new position
+					GameObject lines2 = Instantiate(linesPrefab);
+					lines2.transform.SetParent(DistanceVisualisation);
+					lines2.GetComponent<Lines>().DrawLinesWorldCoordinate(initialCoordinatesBoundingBox, 0);
+
+				}
+
+				GameObject DistanceVisualX = Instantiate(DistanceVisualPrefab);
+				DistanceVisualX.transform.SetParent(DistanceVisualisation);
+				DistanceVisualX.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+				DistanceVisualX.transform.localScale = new Vector3(1f, 1f, 1f);
+				DistanceVisualX.transform.position = PositionOnMovementStart;
+
+				if (bottomFace.center.coordinates.x > transform.InverseTransformPoint(PositionOnMovementStart).x)
+				{
+					DistanceVisualX.transform.localPosition += new Vector3(i * RasterManager.Instance.rasterLevel, 0f, 0f);
+				}
+				else
+				{
+					DistanceVisualX.transform.localPosition += new Vector3(i * RasterManager.Instance.rasterLevel * (-1.0f), 0f, 0f);
+				}
+
+				lastPositionX = DistanceVisualX.transform.position;
+				lastPositionZ = DistanceVisualX.transform.position;
+			}
+
+			// show amount of movement on z
+			if (bottomFace.center.coordinates.z != transform.InverseTransformPoint(PositionOnMovementStart).z)
+			{
+				// use raster manager
+				int countZ = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).z, transform.InverseTransformPoint(PositionOnMovementStart).z);
+
+				for (int i = 0; i <= Mathf.Abs(countZ); i++)
+				{
+					GameObject DistanceVisualZ = Instantiate(DistanceVisualPrefab);
+					DistanceVisualZ.transform.SetParent(DistanceVisualisation);
+					DistanceVisualZ.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+					DistanceVisualZ.transform.localScale = new Vector3(1f, 1f, 1f);
+					DistanceVisualZ.transform.GetChild(0).localEulerAngles = new Vector3(0f, 90f, 0f);
+					DistanceVisualZ.transform.position = lastPositionX;
+
+					if (bottomFace.center.coordinates.z > transform.InverseTransformPoint(PositionOnMovementStart).z)
+					{
+						DistanceVisualZ.transform.localPosition += new Vector3(0f, 0f, i * RasterManager.Instance.rasterLevel);
+					}
+					else
+					{
+						DistanceVisualZ.transform.localPosition += new Vector3(0f, 0f, i * RasterManager.Instance.rasterLevel * (-1.0f));
+					}
+
+					lastPositionZ = DistanceVisualZ.transform.position;
+				}
+
+			}
+
+			// show amount of movement on y
+			if (bottomFace.center.coordinates.y != transform.InverseTransformPoint(PositionOnMovementStart).y)
+			{
+				// use raster manager
+				int countY = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).y, transform.InverseTransformPoint(PositionOnMovementStart).y);
+
+				for (int i = 0; i <= Mathf.Abs(countY); i++)
+				{
+					GameObject DistanceVisualY = Instantiate(DistanceVisualPrefab);
+					DistanceVisualY.transform.SetParent(DistanceVisualisation);
+					DistanceVisualY.transform.localEulerAngles = new Vector3(0f, 0f, 0f);
+					DistanceVisualY.transform.localScale = new Vector3(1f, 1f, 1f);
+					DistanceVisualY.transform.position = lastPositionZ;
+
+					if (bottomFace.center.coordinates.y > transform.InverseTransformPoint(PositionOnMovementStart).y)
+					{
+						DistanceVisualY.transform.localPosition += new Vector3(0f, i * RasterManager.Instance.rasterLevel, 0f);
+					}
+					else
+					{
+						DistanceVisualY.transform.localPosition += new Vector3(0f, i * RasterManager.Instance.rasterLevel * (-1.0f), 0f);
+					}
+
+					lastPositionY = DistanceVisualY.transform.position;
+				}
+
+			}
+		}
+
+
+	}
 
 	public void KeepAboveZero(Vector3 prevPosition){
 		
@@ -602,7 +610,7 @@ public class ModelingObject : MonoBehaviour
 
 			int idOfClosestVertToCamera = GetIdOfClosestVertex(Camera.main.transform.position, boundingBox.coordinates);
 
-
+			/*
 			int nextId = idOfClosestVertToCamera + 1;
 
 			if (nextId > 3) {
@@ -617,13 +625,9 @@ public class ModelingObject : MonoBehaviour
 
 			int idOfCornerOnGround = idOfClosestVertToCamera + 4;
 		
-			// get next, get previous and get the one at bottom
+			handles.RotateY.transform.position = boundingBox.coordinates [idOfCornerOnGround];
 
 			Vector3 direction = boundingBox.coordinates [preId] - boundingBox.coordinates [idOfClosestVertToCamera];
-
-			Vector3 bbCenter = GetBoundingBoxCenter();
-
-			handles.RotateY.transform.position = boundingBox.coordinates [idOfCornerOnGround];
 
 			if (Mathf.Abs(Vector3.Dot (direction.normalized, Vector3.forward)) == 1f) {
 				handles.RotateZ.transform.position = boundingBox.coordinates [preId];
@@ -633,14 +637,33 @@ public class ModelingObject : MonoBehaviour
 				handles.RotateZ.transform.position = boundingBox.coordinates [nextId];
 			}
 
-			//handles.RotateX.transform.position = GetBoundingBoxCenter ();
-			//handles.RotateY.transform.position = GetBoundingBoxCenter ();
-			//handles.RotateZ.transform.position = GetBoundingBoxCenter ();
+			*/
+
+			Vector3 bbCenter = GetBoundingBoxCenter();
+
+			int[] xyz = GetThreeAdjacentCorners (idOfClosestVertToCamera);
+
+			//Debug.Log ("Closest vert: " + idOfClosestVertToCamera);
+			//Debug.Log ("X: " + xyz[0]);
+			//Debug.Log ("Y: " + xyz[1]);
+			//Debug.Log ("Z: " + xyz[2]);
+			
+			handles.RotateX.transform.position = boundingBox.coordinates [xyz[0]];
+			handles.RotateY.transform.position = boundingBox.coordinates [xyz[1]];
+			handles.RotateZ.transform.position = boundingBox.coordinates [xyz[2]];
+
 
 			// RotateHandles 
-			handles.RotateX.transform.rotation = Quaternion.LookRotation (new Vector3(1f,0f,0f), handles.RotateX.transform.position - bbCenter);
-			handles.RotateY.transform.rotation = Quaternion.LookRotation (new Vector3(0f,1f,0f), handles.RotateY.transform.position - bbCenter);
-			handles.RotateZ.transform.rotation = Quaternion.LookRotation (new Vector3(0f,0f,1f), handles.RotateZ.transform.position - bbCenter);
+			if (!boundingBox.local)
+			{
+				handles.RotateX.transform.rotation = Quaternion.LookRotation (new Vector3(1f,0f,0f), handles.RotateX.transform.position - bbCenter);
+				handles.RotateY.transform.rotation = Quaternion.LookRotation (new Vector3(0f,1f,0f), handles.RotateY.transform.position - bbCenter);
+				handles.RotateZ.transform.rotation = Quaternion.LookRotation (new Vector3(0f,0f,1f), handles.RotateZ.transform.position - bbCenter);
+			} else {
+				handles.RotateX.transform.rotation = Quaternion.LookRotation (coordinateSystem.transform.right, handles.RotateX.transform.position - bbCenter);
+				handles.RotateY.transform.rotation = Quaternion.LookRotation (coordinateSystem.transform.up, handles.RotateY.transform.position - bbCenter);
+				handles.RotateZ.transform.rotation = Quaternion.LookRotation (coordinateSystem.transform.forward, handles.RotateZ.transform.position - bbCenter);
+			}
 
 			if (!ProModeMananager.Instance.beginnersMode) {
 				handles.RotateX.SetActive (true);
@@ -658,14 +681,22 @@ public class ModelingObject : MonoBehaviour
 		handles.NonUniformScaleLeft.transform.position = GetBoundingBoxLeftCenter () + 0.03f * (GetBoundingBoxLeftCenter () - GetBoundingBoxRightCenter ()).normalized;
 		handles.NonUniformScaleRight.transform.position = GetBoundingBoxRightCenter () + 0.03f * (GetBoundingBoxRightCenter () - GetBoundingBoxLeftCenter ()).normalized;
 
+		//we always also need wolrd coordinates
+
 		// verschiebung muss relativ sein
-		handles.YMovement.transform.position = GetBoundingBoxTopCenter () + 0.03f * (GetBoundingBoxTopCenter () - GetBoundingBoxBottomCenter ()).normalized;
-		handles.UniformScale.transform.position = GetBoundingBoxTopCenter () + 0.03f * (GetBoundingBoxTopCenter () - GetBoundingBoxBottomCenter ()).normalized;
+		handles.YMovement.transform.position = GetBoundingBoxTopCenterWorld () + 0.03f * (GetBoundingBoxTopCenterWorld () - GetBoundingBoxBottomCenterWorld ()).normalized;
+		handles.UniformScale.transform.position = GetBoundingBoxTopCenterWorld () + 0.03f * (GetBoundingBoxTopCenterWorld () - GetBoundingBoxBottomCenterWorld ()).normalized;
+
+		Vector3 bbFront = GetBoundingBoxFrontCenter ();
+
+		handles.RotateAndTranslate.transform.position = new Vector3 (bbFront.x, GetBoundingBoxBottomCenter().y, bbFront.z) + 0.3f * (bbFront - GetBoundingBoxCenter ()).normalized;
 
 		DrawConnectingLines ();
     }
 
 	public void DrawConnectingLines(){
+
+		Vector3 bbCenter = GetBoundingBoxCenter ();
 
 		if (!ProModeMananager.Instance.beginnersMode) {		
 			//connectingLinesHandles.ClearLines ();
@@ -688,12 +719,12 @@ public class ModelingObject : MonoBehaviour
 
 			connectingLinesHandles.EnhancedDrawLinesWorldCoordinate (new Vector3[] {
 				handles.YMovement.transform.GetChild (0).position,
-				handles.NonUniformScaleTop.transform.position
+				bbCenter
 			}, 6, Color.white);
 		} else {
 				connectingLinesHandles.EnhancedDrawLinesWorldCoordinate (new Vector3[] {
 				handles.YMovement.transform.GetChild (0).position,
-				handles.NonUniformScaleTop.transform.position
+				bbCenter
 			}, 0, Color.white);
 		}
 
@@ -703,21 +734,41 @@ public class ModelingObject : MonoBehaviour
     {
 		Vector3 currentBBCenter = GetBoundingBoxCenter ();
 
+		// frustum
 		handles.faceTopScale.transform.rotation = Quaternion.LookRotation (handles.faceTopScale.transform.position - transform.TransformPoint (topFace.center.coordinates));
 		handles.HeightTop.transform.rotation = Quaternion.LookRotation (transform.TransformDirection(topFace.normal));
 
 		handles.faceBottomScale.transform.rotation = Quaternion.LookRotation (handles.faceBottomScale.transform.position -  transform.TransformPoint (bottomFace.center.coordinates));
 		handles.HeightBottom.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(bottomFace.normal));
 
+
 		// rotate non-uniform scaling handles
-		handles.NonUniformScaleTop.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.up));
-		handles.NonUniformScaleBottom.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.down));
 
-		handles.NonUniformScaleFront.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.back));
-		handles.NonUniformScaleBack.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.forward));
+		// global
 
-		handles.NonUniformScaleLeft.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.left));
-		handles.NonUniformScaleRight.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.right));
+		if (boundingBox.local == false) {
+			handles.NonUniformScaleTop.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.up));
+			handles.NonUniformScaleBottom.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.down));
+
+			handles.NonUniformScaleFront.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.back));
+			handles.NonUniformScaleBack.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.forward));
+
+			handles.NonUniformScaleLeft.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.left));
+			handles.NonUniformScaleRight.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.right));
+		}
+
+		// local
+		if (boundingBox.local == true) {
+			handles.NonUniformScaleTop.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(coordinateSystem.transform.up));
+			handles.NonUniformScaleBottom.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(coordinateSystem.transform.up * (-1f)));
+
+			handles.NonUniformScaleFront.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(coordinateSystem.transform.forward  * (-1f)));
+			handles.NonUniformScaleBack.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(coordinateSystem.transform.forward));
+
+			handles.NonUniformScaleLeft.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(coordinateSystem.transform.right  * (-1f)));
+			handles.NonUniformScaleRight.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(coordinateSystem.transform.right));
+		}
+
 
 		handles.YMovement.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.up));
 		handles.UniformScale.transform.rotation = Quaternion.LookRotation(transform.TransformDirection(Vector3.up));
@@ -898,20 +949,53 @@ public class ModelingObject : MonoBehaviour
 		boundingBox.coordinates = new Vector3[8];
 
         // get highest and lowest values for x,y,z
-		Vector3 minima = GetBoundingBoxMinima();
-		Vector3 maxima = GetBoundingBoxMaxima();
+		Vector3 minima = GetBoundingBoxMinima(boundingBox.local);
+		Vector3 maxima = GetBoundingBoxMaxima(boundingBox.local);
 
         // set all points
-		boundingBox.coordinates[0] = transform.TransformPoint (new Vector3(maxima.x, maxima.y, maxima.z));
-		boundingBox.coordinates[1] = transform.TransformPoint (new Vector3(maxima.x, maxima.y, minima.z));
-		boundingBox.coordinates[2] = transform.TransformPoint (new Vector3(minima.x, maxima.y, minima.z));
-		boundingBox.coordinates[3] = transform.TransformPoint (new Vector3(minima.x, maxima.y, maxima.z));
+		if (!boundingBox.local) {
+			boundingBox.coordinates [0] = transform.TransformPoint (new Vector3 (maxima.x, maxima.y, maxima.z));
+			boundingBox.coordinates [1] = transform.TransformPoint (new Vector3 (maxima.x, maxima.y, minima.z));
+			boundingBox.coordinates [2] = transform.TransformPoint (new Vector3 (minima.x, maxima.y, minima.z));
+			boundingBox.coordinates [3] = transform.TransformPoint (new Vector3 (minima.x, maxima.y, maxima.z));
 
-		boundingBox.coordinates[4] = transform.TransformPoint (new Vector3(maxima.x, minima.y, maxima.z));
-		boundingBox.coordinates[5] = transform.TransformPoint (new Vector3(maxima.x, minima.y, minima.z));
-		boundingBox.coordinates[6] = transform.TransformPoint (new Vector3(minima.x, minima.y, minima.z));
-		boundingBox.coordinates[7] = transform.TransformPoint (new Vector3(minima.x, minima.y, maxima.z));
+			boundingBox.coordinates [4] = transform.TransformPoint (new Vector3 (maxima.x, minima.y, maxima.z));
+			boundingBox.coordinates [5] = transform.TransformPoint (new Vector3 (maxima.x, minima.y, minima.z));
+			boundingBox.coordinates [6] = transform.TransformPoint (new Vector3 (minima.x, minima.y, minima.z));
+			boundingBox.coordinates [7] = transform.TransformPoint (new Vector3 (minima.x, minima.y, maxima.z));
+		} else {
+			boundingBox.coordinates [0] = coordinateSystem.transform.TransformPoint (new Vector3 (maxima.x, maxima.y, maxima.z));
+			boundingBox.coordinates [1] = coordinateSystem.transform.TransformPoint (new Vector3 (maxima.x, maxima.y, minima.z));
+			boundingBox.coordinates [2] = coordinateSystem.transform.TransformPoint (new Vector3 (minima.x, maxima.y, minima.z));
+			boundingBox.coordinates [3] = coordinateSystem.transform.TransformPoint (new Vector3 (minima.x, maxima.y, maxima.z));
+
+			boundingBox.coordinates [4] = coordinateSystem.transform.TransformPoint (new Vector3 (maxima.x, minima.y, maxima.z));
+			boundingBox.coordinates [5] = coordinateSystem.transform.TransformPoint (new Vector3 (maxima.x, minima.y, minima.z));
+			boundingBox.coordinates [6] = coordinateSystem.transform.TransformPoint (new Vector3 (minima.x, minima.y, minima.z));
+			boundingBox.coordinates [7] = coordinateSystem.transform.TransformPoint (new Vector3 (minima.x, minima.y, maxima.z));
+		}
     }
+
+	public void CalculateBoundingBoxWorld()
+	{
+		boundingBoxWorld.coordinates = new Vector3[8];
+
+		// get highest and lowest values for x,y,z
+		Vector3 minima = GetBoundingBoxMinima(boundingBoxWorld.local);
+		Vector3 maxima = GetBoundingBoxMaxima(boundingBoxWorld.local);
+
+		boundingBoxWorld.coordinates [0] = transform.TransformPoint (new Vector3 (maxima.x, maxima.y, maxima.z));
+		boundingBoxWorld.coordinates [1] = transform.TransformPoint (new Vector3 (maxima.x, maxima.y, minima.z));
+		boundingBoxWorld.coordinates [2] = transform.TransformPoint (new Vector3 (minima.x, maxima.y, minima.z));
+		boundingBoxWorld.coordinates [3] = transform.TransformPoint (new Vector3 (minima.x, maxima.y, maxima.z));
+
+		boundingBoxWorld.coordinates [4] = transform.TransformPoint (new Vector3 (maxima.x, minima.y, maxima.z));
+		boundingBoxWorld.coordinates [5] = transform.TransformPoint (new Vector3 (maxima.x, minima.y, minima.z));
+		boundingBoxWorld.coordinates [6] = transform.TransformPoint (new Vector3 (minima.x, minima.y, minima.z));
+		boundingBoxWorld.coordinates [7] = transform.TransformPoint (new Vector3 (minima.x, minima.y, maxima.z));
+	}
+
+
 
 	public void ShowBoundingBox(bool checkForGroup)
     {
@@ -984,7 +1068,7 @@ public class ModelingObject : MonoBehaviour
 			lastPositionController = controllerForMovement.pointOfCollisionGO.transform.position;
 			initialPositionController = controller.pointOfCollisionGO.transform.position;
 			initialDistanceCollisionGOModelingObject = initialPositionController - transform.position;
-			PositionOnMovementStart = 0.25f * boundingBox.coordinates[4] + 0.25f * boundingBox.coordinates[5] + 0.25f * boundingBox.coordinates[6] + 0.25f * boundingBox.coordinates[7];
+			PositionOnMovementStart = 0.25f * boundingBoxWorld.coordinates[4] + 0.25f * boundingBoxWorld.coordinates[5] + 0.25f * boundingBoxWorld.coordinates[6] + 0.25f * boundingBoxWorld.coordinates[7];
 
 			bottomFace.center.possibleSnappingVertexBundle = null;
 			objectSelector.HideSelectionButton ();
@@ -994,7 +1078,7 @@ public class ModelingObject : MonoBehaviour
 
 			for (int j = 0; j < 4; j++)
 			{
-				initialCoordinatesBoundingBox[j] = boundingBox.coordinates[j+4];
+				initialCoordinatesBoundingBox[j] = boundingBoxWorld.coordinates[j+4];
 			}
 
 			// disable collider of object when moving
@@ -1252,18 +1336,21 @@ public class ModelingObject : MonoBehaviour
 	public void ScaleNonUniform(float newScale, Vector3 direction, handle.handleType typeOfHandle, Vector3 centerOfScaling){		
 		
 		// here we need to adjust scaling so that the outcome is in grid
+
+		// this is the hack why it does not work the other way
 		Vector3 scaling = (direction * (newScale)) + Vector3.one - direction;
+
 		Matrix4x4 scalingMatrix = Matrix4x4.TRS (Vector3.zero, Quaternion.Euler(0f,0f,0f), scaling);
 
 		// go through all points
 		for (int i = 0; i < topFace.vertexBundles.Length; i++) {
-			Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (topFace.vertexBundles [i].coordinates - centerOfScaling);
-			topFace.vertexBundles [i].coordinates = newPoint + centerOfScaling;
+			Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(topFace.vertexBundles [i].coordinates - centerOfScaling)));
+			topFace.vertexBundles [i].coordinates = transform.InverseTransformPoint(coordinateSystem.transform.TransformPoint(newPoint)) + centerOfScaling;
 		}
 
 		for (int i = 0; i < bottomFace.vertexBundles.Length; i++) {
-			Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (bottomFace.vertexBundles [i].coordinates - centerOfScaling);
-			bottomFace.vertexBundles [i].coordinates = newPoint + centerOfScaling;
+			Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(bottomFace.vertexBundles [i].coordinates - centerOfScaling)));
+			bottomFace.vertexBundles [i].coordinates = transform.InverseTransformPoint(coordinateSystem.transform.TransformPoint(newPoint)) + centerOfScaling;
 		}
 
 		for (int i = 0; i < faces.Length; i++) {
@@ -1411,6 +1498,8 @@ public class ModelingObject : MonoBehaviour
             faces[i].UpdateSpecialVertexCoordinates();
         }
 
+		coordinateSystem.transform.RotateAround (coordinateSystem.transform.position, angleAxis, angle);
+
         CalculateBoundingBox();
 		PositionHandles (false);
 		RotateHandles();
@@ -1449,6 +1538,24 @@ public class ModelingObject : MonoBehaviour
     }
 
 
+	public Vector3 GetBoundingBoxBottomCenterWorld()
+	{ 
+		CalculateBoundingBoxWorld ();
+		Vector3 boundingBoxBottomCenter = 0.25f * boundingBoxWorld.coordinates [4] + 0.25f * boundingBoxWorld.coordinates [5] + 0.25f * boundingBoxWorld.coordinates [6] + 0.25f * boundingBoxWorld.coordinates [7];
+		return boundingBoxBottomCenter;
+	}
+
+
+	public Vector3 GetBoundingBoxTopCenterWorld()
+	{ 
+		CalculateBoundingBoxWorld ();
+		Vector3 boundingBoxBottomCenter = 0.25f * boundingBoxWorld.coordinates [0] + 0.25f * boundingBoxWorld.coordinates [1] + 0.25f * boundingBoxWorld.coordinates [2] + 0.25f * boundingBoxWorld.coordinates [3];
+		return boundingBoxBottomCenter;
+	}
+
+
+
+
 	public Vector3 GetBoundingBoxBottomCenter()
 	{ 
 		CalculateBoundingBox ();
@@ -1463,6 +1570,7 @@ public class ModelingObject : MonoBehaviour
 		Vector3 boundingBoxBottomCenter = 0.25f * boundingBox.coordinates [0] + 0.25f * boundingBox.coordinates [1] + 0.25f * boundingBox.coordinates [2] + 0.25f * boundingBox.coordinates [3];
 		return boundingBoxBottomCenter;
 	}
+
 
 	public Vector3 GetBoundingBoxFrontCenter()
 	{ 
@@ -1498,14 +1606,50 @@ public class ModelingObject : MonoBehaviour
 		return boundingBoxCenter;
 	}
 
+
+	public int[] GetThreeAdjacentCorners(int id){
+
+		int[] xyz = new int[3];
+
+		Vector3 corner = coordinateSystem.transform.InverseTransformPoint(boundingBox.coordinates [id]);
+
+		for (int i=0; i < boundingBox.coordinates.Length; i++){
+			
+			if (i != id) {
+				
+				Vector3 current = coordinateSystem.transform.InverseTransformPoint(boundingBox.coordinates [i]);
+
+				if (Mathf.Abs(current.y-corner.y) < 0.01f && Mathf.Abs(current.z-corner.z) < 0.01f) {
+					Debug.Log ("Found 1");
+					xyz [0] = i;
+				}
+
+				if (Mathf.Abs(current.x-corner.x) < 0.01f && Mathf.Abs(current.z-corner.z) < 0.01f) {
+					Debug.Log ("Found 2");
+					xyz [1] = i;
+				}
+
+				if (Mathf.Abs(current.x-corner.x) < 0.01f && Mathf.Abs(current.y-corner.y) < 0.01f) {
+					Debug.Log ("Found 3");
+					xyz [2] = i;
+				}
+			}
+		}
+
+		return xyz;
+	}
   
-	public Vector3 GetBoundingBoxMinima()
+	public Vector3 GetBoundingBoxMinima(bool local)
 	{
 		Vector3 minima = new Vector3 (9999f, 9999f, 9999f);
 
 		for (int i = 0; i < topFace.vertexBundles.Length; i++)
 		{
-			Vector3 current = topFace.vertexBundles[i].coordinates;
+			if (!local) {
+				current = topFace.vertexBundles [i].coordinates;
+			} else {
+				current = coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(topFace.vertexBundles [i].coordinates));					
+			}
 
 			if (current.x < minima.x) {
 				minima.x = current.x;
@@ -1523,7 +1667,11 @@ public class ModelingObject : MonoBehaviour
 
 		for (int i = 0; i < bottomFace.vertexBundles.Length; i++)
 		{
-			Vector3 current = bottomFace.vertexBundles[i].coordinates;
+			if (!local) {
+				current = bottomFace.vertexBundles [i].coordinates;
+			} else {
+				current = coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(bottomFace.vertexBundles [i].coordinates));					
+			}
 
 			if (current.x < minima.x) {
 				minima.x = current.x;
@@ -1542,13 +1690,17 @@ public class ModelingObject : MonoBehaviour
 		return minima;
 	}
 
-	public Vector3 GetBoundingBoxMaxima()
+	public Vector3 GetBoundingBoxMaxima(bool local)
 	{
 		Vector3 maxima = new Vector3 (-9999f, -9999f, -9999f);
 
 		for (int i = 0; i < topFace.vertexBundles.Length; i++)
 		{
-			Vector3 current = topFace.vertexBundles[i].coordinates;
+			if (!local) {
+				current = topFace.vertexBundles [i].coordinates;
+			} else {
+				current = coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(topFace.vertexBundles [i].coordinates));					
+			}
 
 			if (current.x > maxima.x) {
 				maxima.x = current.x;
@@ -1566,7 +1718,11 @@ public class ModelingObject : MonoBehaviour
 
 		for (int i = 0; i < bottomFace.vertexBundles.Length; i++)
 		{
-			Vector3 current = bottomFace.vertexBundles[i].coordinates;
+			if (!local) {
+				current = bottomFace.vertexBundles [i].coordinates;
+			} else {
+				current = coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(bottomFace.vertexBundles [i].coordinates));					
+			}
 
 			if (current.x > maxima.x) {
 				maxima.x = current.x;
@@ -1609,7 +1765,8 @@ public class ModelingObject : MonoBehaviour
 
 	public int GetIdOfClosestVertex(Vector3 position, Vector3[] coordinates){
 
-		Vector3 closestVertex = bottomFace.vertexBundles[0].coordinates;
+		Vector3 closestVertex = coordinates[0];
+
 		float shortestDistance = 999999f;
 		int idOfClosestVertex = 0;
 

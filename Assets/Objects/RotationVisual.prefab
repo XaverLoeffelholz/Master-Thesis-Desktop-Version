@@ -214,8 +214,8 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 105200}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_Materials:
   - {fileID: 2100000, guid: d13a40e0a6a35495f91f25b8e266bdc5, type: 2}
   m_SubsetIndices: 
@@ -292,8 +292,8 @@ MeshRenderer:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 196346}
   m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
   m_Materials:
   - {fileID: 2100000, guid: d13a40e0a6a35495f91f25b8e266bdc5, type: 2}
   m_SubsetIndices: 
@@ -401,8 +401,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   firstSlice: {fileID: 124438, guid: 3a86d4f9add6bdc4ca41800ede2fda68, type: 2}
+  bigSlice: {fileID: 124438, guid: 30d09528542d349598c7a4442a30324c, type: 2}
   SlicesContainer: {fileID: 416108}
   RightangleVisual: {fileID: 114554}
+  RotationPlane: {fileID: 196346}
+  RotationPlaneBack: {fileID: 105200}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

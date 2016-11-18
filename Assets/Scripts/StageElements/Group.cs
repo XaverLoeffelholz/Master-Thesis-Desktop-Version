@@ -106,7 +106,7 @@ public class Group : MonoBehaviour {
 
 		for (int i = 0; i < objectList.Count; i++)
 		{
-			Vector3 currentMinima = transform.InverseTransformPoint(objectList [i].transform.TransformPoint(objectList [i].GetBoundingBoxMinima ()));
+			Vector3 currentMinima = transform.InverseTransformPoint(objectList [i].transform.TransformPoint(objectList [i].GetBoundingBoxMinima (false)));
 
 			if (currentMinima.x < minima.x) {
 				minima.x = currentMinima.x;
@@ -131,7 +131,7 @@ public class Group : MonoBehaviour {
 
 		for (int i = 0; i < objectList.Count; i++)
 		{
-			Vector3 currentMaxima = transform.InverseTransformPoint(objectList [i].transform.TransformPoint(objectList [i].GetBoundingBoxMaxima ()));
+			Vector3 currentMaxima = transform.InverseTransformPoint(objectList [i].transform.TransformPoint(objectList [i].GetBoundingBoxMaxima (false)));
 
 			if (currentMaxima.x > maxima.x) {
 				maxima.x = currentMaxima.x;
