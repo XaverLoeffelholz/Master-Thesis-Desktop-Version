@@ -92,6 +92,7 @@ public class ModelingObject : MonoBehaviour
 
     public BoundingBox boundingBox;
 	public BoundingBox boundingBoxWorld;
+	public bool useBoundingBoxWorld = false;
 
 	private bool trashed = false;
 	public Transform rotationObject;
@@ -113,6 +114,8 @@ public class ModelingObject : MonoBehaviour
 	// vector used for bb calculation
 	private Vector3 current;
 
+	bool cameraMoving;
+
     // Use this for initialization
     void Start()
     {
@@ -122,27 +125,52 @@ public class ModelingObject : MonoBehaviour
 		selection = GameObject.Find ("SelectionManager").GetComponent<Selection> ();
 	}
 
+
+	public void ToggleLocalGlobalBB(){
+
+		useBoundingBoxWorld = !useBoundingBoxWorld;
+
+		if (useBoundingBoxWorld) {
+			SwitchToGlobalBoundingBox ();
+		} else {
+			SwitchToLocalBoundingBox ();
+		}
+	}
+
     // Update is called once per frame
     void FixedUpdate()
     {
+		if (selected && Input.GetKeyDown(KeyCode.P)){
+			//Debug.Log("switch world local");
+			ToggleLocalGlobalBB();
+		}
+
 		if (Input.GetMouseButtonDown (1)  || (selection.currentFocus == null && Input.GetMouseButton(0))) {
+			cameraMoving = true;
+
 			handles.HideRotationHandlesExcept (null);
 			handles.HideScalingHandlesExcept (null);
-			connectingLinesHandles.ClearLines ();
+			//connectingLinesHandles.ClearLines ();
 		}
 
 		if ((Input.GetMouseButtonUp (1) && selected) ||  (Input.GetMouseButtonUp (0) && selected)) {
+			cameraMoving = false;
+
 			PositionHandles (true);
 			RotateHandles ();
 			handles.ShowNonUniformScalingHandles ();
 			handles.ShowRotationHandles ();
-			DrawConnectingLines ();
+
 		}
 
         if (!moving && transform.parent.CompareTag("Library"))
         {
             transform.Rotate(0, 10f * Time.deltaTime, 0);
         }
+
+		if (selected && !moving && !cameraMoving) {
+			DrawConnectingLines ();
+		}
 
 		if (moving) {
 			onRaster = false;
@@ -261,7 +289,7 @@ public class ModelingObject : MonoBehaviour
 
 		if (RasterManager.Instance.rasterLevel >= 0.05f && !ProModeMananager.Instance.beginnersMode) {
 			// maybe check local positon
-			int countX = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).x, transform.InverseTransformPoint(PositionOnMovementStart).x);
+			int countX = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenterWorld()).x, transform.InverseTransformPoint(PositionOnMovementStart).x);
 
 			for (int i = 0; i <= Mathf.Abs(countX); i++)
 			{
@@ -283,7 +311,7 @@ public class ModelingObject : MonoBehaviour
 					CenterVisual2.transform.localScale = new Vector3(1f, 1f, 1f);
 
 					// not very efficient
-					CenterVisual2.transform.position = 0.25f * boundingBox.coordinates[4] + 0.25f * boundingBox.coordinates[5] + 0.25f * boundingBox.coordinates[6] + 0.25f * boundingBox.coordinates[7];
+					CenterVisual2.transform.position = 0.25f * boundingBoxWorld.coordinates[4] + 0.25f * boundingBoxWorld.coordinates[5] + 0.25f * boundingBoxWorld.coordinates[6] + 0.25f * boundingBoxWorld.coordinates[7];
 
 					// prev position
 					GameObject lines = Instantiate(linesPrefab);
@@ -317,10 +345,10 @@ public class ModelingObject : MonoBehaviour
 			}
 
 			// show amount of movement on z
-			if (bottomFace.center.coordinates.z != transform.InverseTransformPoint(PositionOnMovementStart).z)
+			if (transform.InverseTransformPoint(GetBoundingBoxBottomCenterWorld()).z != transform.InverseTransformPoint(PositionOnMovementStart).z)
 			{
 				// use raster manager
-				int countZ = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).z, transform.InverseTransformPoint(PositionOnMovementStart).z);
+				int countZ = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenterWorld()).z, transform.InverseTransformPoint(PositionOnMovementStart).z);
 
 				for (int i = 0; i <= Mathf.Abs(countZ); i++)
 				{
@@ -346,10 +374,10 @@ public class ModelingObject : MonoBehaviour
 			}
 
 			// show amount of movement on y
-			if (bottomFace.center.coordinates.y != transform.InverseTransformPoint(PositionOnMovementStart).y)
+			if (transform.InverseTransformPoint(GetBoundingBoxBottomCenterWorld()).y != transform.InverseTransformPoint(PositionOnMovementStart).y)
 			{
 				// use raster manager
-				int countY = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenter()).y, transform.InverseTransformPoint(PositionOnMovementStart).y);
+				int countY = RasterManager.Instance.getNumberOfGridUnits(transform.InverseTransformPoint(GetBoundingBoxBottomCenterWorld()).y, transform.InverseTransformPoint(PositionOnMovementStart).y);
 
 				for (int i = 0; i <= Mathf.Abs(countY); i++)
 				{
@@ -381,7 +409,7 @@ public class ModelingObject : MonoBehaviour
 		
 		if (group != null && group.lowestModObject != null &&  group.lowestModObject != this) {
 			// get lowest point of group
-			Vector3 lowestPoint = group.lowestModObject.GetBoundingBoxBottomCenter () + (transform.position - prevPosition);
+			Vector3 lowestPoint = group.lowestModObject.GetBoundingBoxBottomCenterWorld () + (transform.position - prevPosition);
 
 			if ((transform.localPosition.y + transform.InverseTransformPoint(lowestPoint).y) < 0f) {	
 				float belowZero = Mathf.Abs(transform.localPosition.y + transform.InverseTransformPoint(lowestPoint).y);
@@ -389,7 +417,7 @@ public class ModelingObject : MonoBehaviour
 			}
 
 		} else {
-			Vector3 lowestPoint = GetBoundingBoxBottomCenter ();
+			Vector3 lowestPoint = GetBoundingBoxBottomCenterWorld ();
 
 			if ((transform.localPosition.y + transform.InverseTransformPoint(lowestPoint).y) < 0f) {	
 				float belowZero = Mathf.Abs(transform.localPosition.y + transform.InverseTransformPoint(lowestPoint).y);
@@ -591,6 +619,18 @@ public class ModelingObject : MonoBehaviour
 		DrawConnectingLines ();
 	}
 
+	public void SwitchToGlobalBoundingBox(){
+		useBoundingBoxWorld = true;
+		boundingBox.local = false;
+		UpdateVisibleHandles ();
+	}
+
+	public void SwitchToLocalBoundingBox(){
+		useBoundingBoxWorld = false;
+		boundingBox.local = true;
+		UpdateVisibleHandles ();
+	}
+
 	public void PositionHandles(bool showRotationHandles)
     {
 		CalculateBoundingBox ();
@@ -641,7 +681,8 @@ public class ModelingObject : MonoBehaviour
 
 			Vector3 bbCenter = GetBoundingBoxCenter();
 
-			int[] xyz = GetThreeAdjacentCorners (idOfClosestVertToCamera);
+			int[] xyz = GetThreeAdjacentCorners (idOfClosestVertToCamera,boundingBox.local);
+
 
 			//Debug.Log ("Closest vert: " + idOfClosestVertToCamera);
 			//Debug.Log ("X: " + xyz[0]);
@@ -672,14 +713,14 @@ public class ModelingObject : MonoBehaviour
 			handles.RotateY.SetActive (true);
 		}
 	
-		handles.NonUniformScaleTop.transform.position = GetBoundingBoxTopCenter () + 0.03f * (GetBoundingBoxTopCenter () - GetBoundingBoxBottomCenter ()).normalized;
-		handles.NonUniformScaleBottom.transform.position = GetBoundingBoxBottomCenter () + 0.03f * (GetBoundingBoxBottomCenter () - GetBoundingBoxTopCenter ()).normalized;
+		handles.NonUniformScaleTop.transform.position = GetBoundingBoxTopCenter () + 0.00f * (GetBoundingBoxTopCenter () - GetBoundingBoxBottomCenter ()).normalized;
+		handles.NonUniformScaleBottom.transform.position = GetBoundingBoxBottomCenter () + 0.00f * (GetBoundingBoxBottomCenter () - GetBoundingBoxTopCenter ()).normalized;
 
-		handles.NonUniformScaleFront.transform.position = GetBoundingBoxFrontCenter () + 0.03f * (GetBoundingBoxFrontCenter () - GetBoundingBoxBackCenter ()).normalized;
-		handles.NonUniformScaleBack.transform.position = GetBoundingBoxBackCenter () + 0.03f * (GetBoundingBoxBackCenter () - GetBoundingBoxFrontCenter ()).normalized;
+		handles.NonUniformScaleFront.transform.position = GetBoundingBoxFrontCenter () + 0.00f * (GetBoundingBoxFrontCenter () - GetBoundingBoxBackCenter ()).normalized;
+		handles.NonUniformScaleBack.transform.position = GetBoundingBoxBackCenter () + 0.00f * (GetBoundingBoxBackCenter () - GetBoundingBoxFrontCenter ()).normalized;
 
-		handles.NonUniformScaleLeft.transform.position = GetBoundingBoxLeftCenter () + 0.03f * (GetBoundingBoxLeftCenter () - GetBoundingBoxRightCenter ()).normalized;
-		handles.NonUniformScaleRight.transform.position = GetBoundingBoxRightCenter () + 0.03f * (GetBoundingBoxRightCenter () - GetBoundingBoxLeftCenter ()).normalized;
+		handles.NonUniformScaleLeft.transform.position = GetBoundingBoxLeftCenter () + 0.00f * (GetBoundingBoxLeftCenter () - GetBoundingBoxRightCenter ()).normalized;
+		handles.NonUniformScaleRight.transform.position = GetBoundingBoxRightCenter () + 0.00f * (GetBoundingBoxRightCenter () - GetBoundingBoxLeftCenter ()).normalized;
 
 		//we always also need wolrd coordinates
 
@@ -697,6 +738,8 @@ public class ModelingObject : MonoBehaviour
 	public void DrawConnectingLines(){
 
 		Vector3 bbCenter = GetBoundingBoxCenter ();
+
+		/*
 
 		if (!ProModeMananager.Instance.beginnersMode) {		
 			//connectingLinesHandles.ClearLines ();
@@ -727,6 +770,8 @@ public class ModelingObject : MonoBehaviour
 				bbCenter
 			}, 0, Color.white);
 		}
+
+		*/
 
 	}
 
@@ -893,6 +938,8 @@ public class ModelingObject : MonoBehaviour
     public void Select(Selection controller, Vector3 uiPosition)
     {		
 		if (!selected) {
+			//WorldLocalToggle.Instance.Show ();
+
 			if (group != null)
 			{
 				group.SelectGroup(this);
@@ -909,6 +956,10 @@ public class ModelingObject : MonoBehaviour
 
 			UiCanvasGroup.Instance.transform.position = uiPosition;
 			UiCanvasGroup.Instance.OpenMainMenu(this, controller);
+
+			if (WorldLocalToggle.Instance.local == useBoundingBoxWorld) {
+				ToggleLocalGlobalBB ();
+			}
 
 			//ShowOutline(true);
 			ShowBoundingBox (true);
@@ -1342,15 +1393,30 @@ public class ModelingObject : MonoBehaviour
 
 		Matrix4x4 scalingMatrix = Matrix4x4.TRS (Vector3.zero, Quaternion.Euler(0f,0f,0f), scaling);
 
-		// go through all points
-		for (int i = 0; i < topFace.vertexBundles.Length; i++) {
-			Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(topFace.vertexBundles [i].coordinates - centerOfScaling)));
-			topFace.vertexBundles [i].coordinates = transform.InverseTransformPoint(coordinateSystem.transform.TransformPoint(newPoint)) + centerOfScaling;
-		}
+		if (boundingBox.local) {
+			
+			// go through all points
+			for (int i = 0; i < topFace.vertexBundles.Length; i++) {
+				Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (coordinateSystem.transform.InverseTransformPoint (transform.TransformPoint (topFace.vertexBundles [i].coordinates - centerOfScaling)));
+				topFace.vertexBundles [i].coordinates = transform.InverseTransformPoint (coordinateSystem.transform.TransformPoint (newPoint)) + centerOfScaling;
+			}
 
-		for (int i = 0; i < bottomFace.vertexBundles.Length; i++) {
-			Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (coordinateSystem.transform.InverseTransformPoint(transform.TransformPoint(bottomFace.vertexBundles [i].coordinates - centerOfScaling)));
-			bottomFace.vertexBundles [i].coordinates = transform.InverseTransformPoint(coordinateSystem.transform.TransformPoint(newPoint)) + centerOfScaling;
+			for (int i = 0; i < bottomFace.vertexBundles.Length; i++) {
+				Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (coordinateSystem.transform.InverseTransformPoint (transform.TransformPoint (bottomFace.vertexBundles [i].coordinates - centerOfScaling)));
+				bottomFace.vertexBundles [i].coordinates = transform.InverseTransformPoint (coordinateSystem.transform.TransformPoint (newPoint)) + centerOfScaling;
+			}
+
+		} else {
+			
+			for (int i = 0; i < topFace.vertexBundles.Length; i++) {
+				Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (topFace.vertexBundles [i].coordinates - centerOfScaling);
+				topFace.vertexBundles [i].coordinates = newPoint + centerOfScaling;
+			}
+
+			for (int i = 0; i < bottomFace.vertexBundles.Length; i++) {
+				Vector3 newPoint = scalingMatrix.MultiplyPoint3x4 (bottomFace.vertexBundles [i].coordinates - centerOfScaling);
+				bottomFace.vertexBundles [i].coordinates = newPoint + centerOfScaling;
+			}
 		}
 
 		for (int i = 0; i < faces.Length; i++) {
@@ -1607,11 +1673,15 @@ public class ModelingObject : MonoBehaviour
 	}
 
 
-	public int[] GetThreeAdjacentCorners(int id){
+	public int[] GetThreeAdjacentCorners(int id, bool local){
 
 		int[] xyz = new int[3];
 
 		Vector3 corner = coordinateSystem.transform.InverseTransformPoint(boundingBox.coordinates [id]);
+
+		if (!local) {
+			corner = boundingBox.coordinates [id];
+		}
 
 		for (int i=0; i < boundingBox.coordinates.Length; i++){
 			
@@ -1619,18 +1689,22 @@ public class ModelingObject : MonoBehaviour
 				
 				Vector3 current = coordinateSystem.transform.InverseTransformPoint(boundingBox.coordinates [i]);
 
+				if (!local) {
+					current = boundingBox.coordinates [i];
+				}
+
 				if (Mathf.Abs(current.y-corner.y) < 0.01f && Mathf.Abs(current.z-corner.z) < 0.01f) {
-					Debug.Log ("Found 1");
+		
 					xyz [0] = i;
 				}
 
 				if (Mathf.Abs(current.x-corner.x) < 0.01f && Mathf.Abs(current.z-corner.z) < 0.01f) {
-					Debug.Log ("Found 2");
+
 					xyz [1] = i;
 				}
 
 				if (Mathf.Abs(current.x-corner.x) < 0.01f && Mathf.Abs(current.y-corner.y) < 0.01f) {
-					Debug.Log ("Found 3");
+		
 					xyz [2] = i;
 				}
 			}

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using UnityEngine.EventSystems;
 
 public class Selection : MonoBehaviour
 {
@@ -203,7 +204,7 @@ public class Selection : MonoBehaviour
 		}
 
 		// only change focus is the object is not moved at the moment
-		if (!movingObject && !movingHandle && !scalingObject && !triggerPressed) {
+		if (!EventSystem.current.IsPointerOverGameObject () && !movingObject && !movingHandle && !scalingObject && !triggerPressed && !Input.GetMouseButton(0) && !Input.GetMouseButton(1) && !Input.GetMouseButton(2)) {
 				
 			if (Physics.Raycast (ray, out hit)) {					
 
@@ -319,6 +320,7 @@ public class Selection : MonoBehaviour
 						Logger.Instance.AddLine (Logger.typeOfLog.triggerOnObject);
 
 						if (currentSelection != null && currentFocus != currentSelection) {
+							//WorldLocalToggle.Instance.Hide ();
 							currentSelection.GetComponent<ModelingObject> ().DeSelect (this);
 						}
 

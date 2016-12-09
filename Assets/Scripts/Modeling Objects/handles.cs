@@ -65,6 +65,8 @@ public class handles : MonoBehaviour {
         {
             handle.gameObject.SetActive(false);
         }
+
+		WorldLocalToggle.Instance.Hide ();
     }
 
     public void ShowRotationHandles()
@@ -107,6 +109,7 @@ public class handles : MonoBehaviour {
 			RotateAndTranslate.SetActive (false);
 		}
 
+		WorldLocalToggle.Instance.Hide ();
 	}
 
 	public void ShowNonUniformScalingHandles() {
@@ -143,6 +146,8 @@ public class handles : MonoBehaviour {
 				NonUniformScaleBottom.SetActive (true);
 				NonUniformScaleLeft.SetActive (true);
 				NonUniformScaleRight.SetActive (true);
+
+				WorldLocalToggle.Instance.Show ();
 
 			} else {
 				NonUniformScalingHandles.SetActive (false);

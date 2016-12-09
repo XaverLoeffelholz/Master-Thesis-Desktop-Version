@@ -25,6 +25,13 @@ public class ProModeMananager : Singleton<ProModeMananager> {
 	}
 
 	public void ActivateBeginnersMode(){
+
+		if (selection.currentSelection != null) {
+			if (selection.currentSelection.GetComponent<ModelingObject> ().boundingBox.local) {
+				WorldLocalToggle.Instance.ToggleWorldLocal ();
+			}
+		}
+
 		beginnersMode = true;
 
 		if (selection.currentSelection != null) {
@@ -38,6 +45,8 @@ public class ProModeMananager : Singleton<ProModeMananager> {
 
 		rasterSlider.value = 0f;
 		rasterSlider.gameObject.SetActive (false);
+
+
 	}
 
 	public void DeActivateBeginnersMode(){

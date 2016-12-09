@@ -11,7 +11,7 @@ GameObject:
   - 33: {fileID: 3352072}
   - 23: {fileID: 2385224}
   - 95: {fileID: 9545402}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,7 +28,7 @@ GameObject:
   - 4: {fileID: 452432}
   - 33: {fileID: 3373214}
   - 23: {fileID: 2342068}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: RotationVisualPlane (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 491314}
   - 114: {fileID: 11409900}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: RotationVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,7 +61,7 @@ GameObject:
   - 4: {fileID: 446504}
   - 33: {fileID: 3388452}
   - 23: {fileID: 2362982}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: RightAngleVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ GameObject:
   - 4: {fileID: 498262}
   - 33: {fileID: 3301002}
   - 23: {fileID: 2358806}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: RightAngleVisual (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 416108}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: SlicesContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -110,7 +110,7 @@ GameObject:
   - 4: {fileID: 427586}
   - 33: {fileID: 3375590}
   - 23: {fileID: 2383924}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: RotationVisualPlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}

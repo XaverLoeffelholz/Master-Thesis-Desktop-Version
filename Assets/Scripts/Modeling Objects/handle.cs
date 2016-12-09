@@ -120,16 +120,11 @@ public class handle : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-
 		// adapt scaling like in other prototype
-
 		float distanceToCamera = (Camera.main.transform.position - transform.position).magnitude;
 		Vector3 size = Vector3.one * distanceToCamera * 0.35f;
 
 		transform.localScale = size;
-
-
-
     }
 
 	private float CalculateInputFromPoint(Vector3 pointOfCollision, Vector3 pos1, Vector3 pos2)
@@ -632,7 +627,7 @@ public class handle : MonoBehaviour {
 		if (visual) {
 			if (rotationVisual == null) {
 				rotationVisual = Instantiate (rotationVisualPrefab);
-				rotationVisual.transform.localScale = Vector3.one * (transform.position - connectedModelingObject.GetBoundingBoxCenter ()).magnitude * 1.7f;	
+				rotationVisual.transform.localScale = Vector3.one * (transform.position - centerOfRotation).magnitude * 2f;	
 				rotationVisual.GetComponent<RotationVisual> ().ColorCircle (normalColor);
 
 				RotationOnStartLine = Instantiate (handles.linesGO);
@@ -648,7 +643,8 @@ public class handle : MonoBehaviour {
 
 
 		float distanceToCenter = (lastIntersectionPoint - centerOfRotation).magnitude / (transform.position - centerOfRotation).magnitude;
-			
+		//float circleSize = (transform.position - connectedModelingObject.GetBoundingBoxCenter ()).magnitude * 2f;	
+
 		if (distanceToCenter > 1.5f) {
 			newRotationAmount = RasterManager.Instance.RasterAngle (newRotationAmount);
 		} else {
@@ -677,7 +673,7 @@ public class handle : MonoBehaviour {
 		*/
 
 		if (visual) {
-			if (distanceToCenter > 1.5) {
+			if (distanceToCenter > 1.5f) {
 				rotationVisual.GetComponent<RotationVisual> ().RotationVisualisation (firstIntersectionPoint, lastIntersectionPoint, false);
 			} else {
 				rotationVisual.GetComponent<RotationVisual> ().RotationVisualisation (firstIntersectionPoint, lastIntersectionPoint, true);
